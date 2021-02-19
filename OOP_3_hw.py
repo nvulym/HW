@@ -22,8 +22,6 @@ class CustomFloat:  # родительский
             raise TypeError
         return float(self) == other
 
-    def __neq__(self, other): # !=
-        return not self.__eq__(other)
 
     def __lt__(self, other): # <
         if isinstance(other, RandomFloat):
@@ -80,8 +78,6 @@ class EpsilonFloat(CustomFloat):
     def __eq__(self, other):  # ==
         if not isinstance(other, (float, int, EpsilonFloat)):
             raise TypeError
-        if isinstance(other, EpsilonFloat):
-            return float(self)
         return abs(float(self.data) - other) < self.epsilon
 
     def __ne__(self, other): # !=
