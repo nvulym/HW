@@ -76,8 +76,10 @@ class EpsilonFloat(CustomFloat):
         return self.data
 
     def __eq__(self, other):  # ==
-        if not isinstance(other, (float, int, EpsilonFloat)):
-            raise TypeError
+        if isinstance(other, EpsilonFloat):
+            other = float(other)
+        elif not isinstance(other, (float, int)):
+            return False
         return abs(float(self.data) - other) < self.epsilon
 
     def __ne__(self, other): # !=
@@ -110,3 +112,4 @@ d = EpsilonFloat(10.00000123488)
 # c < d
 # c >= d
 # c <= d
+c == d
