@@ -18,8 +18,6 @@ class Molecule:
             raise ValueError
         self._atoms[map_] = atom
         self._bonds[map_] = {}
-        return map_  # чтобы значть что это был за атом, чтобы понять, какой это был атом, т.к. мы могли и не знать мап
-        # данного атома
 
     def add_bond(self, map1, map2, bond):
         if not isinstance(bond, int):
@@ -49,14 +47,19 @@ class Molecule:
     def dell_atom(self, map_):
         if not isinstance(map_, int):
             raise TypeError
-        elif map_ < 1:
-            raise ValueError
-        self._atoms.pop(map_)  # если номера атома нет, то pop сам кинет ошибку KeyError
+        elif map_ in self._atoms:
+            self._atoms.pop(map_)  # удаляет атом по номеру, если есть в словаре
+            for neigh in self._bonds[map_]:
+                self._bonds[neigh].pop(map_)
+            self._bonds.pop(map_)  # удаляет связи, которые были связаны с этим атомом
 
-    def dell_bond(self, neigh1, neigh2, map1, map2):
-        ...
-        self._bonds.pop(neigh1[map2])
-        self._bonds.pop(neigh2[map1])
+
+    def dell_bond(self, map1, map2):
+        if not isinstance((map1, map2), int):
+            raise TypeError
+
+        self._bonds.pop(map1)
+        self._bonds.pop(map2)
 
 mol = Molecule()
 mol.add_atom(atom = 'C', map_ = 1)
@@ -68,5 +71,6 @@ mol.add_atom(atom = 'Cl', map_ = 4)
 mol.add_bond(1, 4, 1)
 print('Atoms before', mol.show_atom())
 print('Bonds before', mol.show_bond())
-mol.dell_atom(map_=1)
+mol.dell_atom(map_=0)
 print('Atoms after', mol.show_atom())
+print('Bonds after', mol.show_bond())
