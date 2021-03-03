@@ -57,11 +57,81 @@ class Molecule:
         # возвращает генератор
         return iter(self._atoms)
 
-    def iter_bonds(self):
+    # def iter_bonds(self):
         # должен быть генератором возвращающим пару (1,2) (2,1)
-        for map1 in self._bonds.keys():
-            for map2 in self._bonds[map1]:
-                yield (map1,map2)
+        # for atom, neighbors_dict in self._bonds.items():
+        #     for neighbor, bond in neighbors_dict.items():
+        #         yield atom, neighbor, bond
+        # seen = set()
+        # for map1, nb in self._bonds.items():
+        #     for map2 in nb:
+        #         if map2 in seen:
+        #             continue
+        #         yield map1, map2
+        #     seen.add(map1)
+
+    def iter_bonds(self):
+        return IterBonds(self._bonds)
+
+    def iter_atom(self):
+        return IterAtom(self._atoms)
+    def __contains__(self, item):
+        if isinstance(item, int):
+            return item in self._atoms
+        elif isinstance(item, str):
+            return item in self._atoms.values()
+
+class IterBonds:
+    def __init__(self, adj):
+        self._bonds = adj
+
+    def __iter__(self):
+        seen = set()
+        for map1, nb in self._bonds.items():
+            for map2 in nb:
+                if map2 in seen:
+                    continue
+                yield map1, map2
+            seen.add(map1)
+
+class IterAtom:
+    def __init__(self, adj):
+        self._atom = adj
+
+    def __iter__(self):
+        for map_, atom in self._atom.items():
+            yield map_, atom
+
+
+class Atom:
+    def __init__(self, isotope: int = None):
+    # isotope >= 1
+        self._isotope = isotope
+
+    def __eq__(self, other):
+        return isinstance(self, type(other)) and self._isotope == other._isotope
+
+
+class C(Atom):
+    ...
+
+
+class O(Atom):
+    ...
+
+
+class N(Atom):
+    ...
+
+
+class Bond:
+    # порядок связи в инит
+    ...
+
+
+
+
+# Д/З класс IterAtoms который возвращает пару (номер атома, имя атома)
 
 mol = Molecule()
 mol.add_atom(atom = 'C', map_ = 1)
@@ -81,12 +151,14 @@ mol.add_bond(1, 4, 1)
 # mol.dell_bond(map1=1, map2=4)
 # print('Atoms after', mol.print_atom())
 # print('Bonds after', mol.print_bond())
-
-for bonds in mol.iter_bonds():
-    print(bonds)
-    # (1, 2)
-    # (1, 4)
-    # (2, 1)
-    # (2, 3)
-    # (3, 2)
-    # (4, 1)
+# for bonds in mol.iter_bonds():
+#     print(bonds)
+# (1, 2)
+# (1, 4)
+# (2, 3)
+for atoms in mol.iter_atom():
+    print(atoms)
+# (1, 'C')
+# (2, 'C')
+# (3, 'C')
+# (4, 'Cl')
