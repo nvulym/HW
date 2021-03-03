@@ -12,7 +12,7 @@ def binary_search(array, value):
         if value == array[0]:
             return 0
         elif value > array[-1]:
-            return "No value"
+            raise ValueError
         elif value > array[mid]:  # если value больше, то игнорируем левую половину
             left = mid + 1
         elif value == array[mid]:  # если value равно половине
@@ -22,9 +22,9 @@ def binary_search(array, value):
         elif value < array[mid]:  # если value меньше, то игнорируем правую половину
             right = mid - 1
     if left > right:
-        return "No value"
+        raise ValueError
     else:
         return mid
 
-print(binary_search(test_list, a))  # No value
+print(binary_search(test_list, a))  # ValueError
 print(binary_search(test_list, b))  # 9
