@@ -7,20 +7,18 @@ class Sparse_list:
         return self._len
 
     def __repr__(self):  # вернет строку, содержащую печатаемое формальное представление объекта => список с 0
-        temp_list = [0.] * self._len
-        for key, val in self._data.items():
-            temp_list[key] = val
-        return str(temp_list)
+        temp = [0.] * self._len
+        for k, v in self._data.items():
+            temp[k] = v
+        return str(temp)
 
     def __setitem__(self, ind, value):
         if not isinstance(ind, int) and not isinstance(value, (float, int)):
             raise TypeError
+        elif ind < 0:
+            ind = self._len + ind
         elif ind >= self._len:
             raise IndexError("List index out of range")
-        elif ind < -self._len:
-            raise IndexError("List assignment index out of range")
-        elif -self._len <= ind < 0:
-            ind = self._len + ind
         if value == 0:  # список не должен содержать 0
             try:
                 del self._data[ind]
@@ -31,11 +29,11 @@ class Sparse_list:
 
     def __getitem__(self, ind):
         if isinstance(ind, int):
-            if ind > self._len or -self._len > ind:
-                raise IndexError('List index out of range')
-            elif ind < 0:
+            if ind < 0:
                 ind = self._len + ind
-            return self._data.get(ind, default = 0)
+            elif ind > self._len:
+                raise IndexError('List index out of range')
+            return self._data.get(ind, 0)
         elif isinstance(ind, slice):
             out_dict = Sparse_list()
             for i in range(*ind.indices(self._len)):
@@ -48,28 +46,27 @@ class Sparse_list:
         else:
             raise TypeError
 
-    def __delitem__(self, item):
-        if isinstance(item, slice):
-            indices_to_remove = range(*item.indices(self._len))
-        elif item < 0:
-            indices_to_remove = (self._len + item, )
+    def __delitem__(self, ind):
+        if isinstance(ind, int):
+            if ind < 0:
+                ind = self._len + ind
+            elif ind > self._len:
+                raise IndexError('List index out of range')
+            try:
+                del self._data[ind]
+                for i in range(ind+1, self._len):
+                    self._data[i-1] = self._data.pop(i)
+            except KeyError:
+                pass
+            self._len -= 1
+        elif isinstance(ind, slice):
+            start, stop, step = ind.indices(self._len)
+            if step > 0:
+                start, stop, step = stop - 1, start - 1, -step
+            for i in range(start, stop, step):
+                del self[i]
         else:
-            indices_to_remove = (item, )
-        if not indices_to_remove:
-            raise KeyError
-
-        indices_removed = 0
-        removing_tail = indices_to_remove[-1] == self._len - 1
-
-        for current_ind in sorted(self._data.keys()):
-            if current_ind < indices_to_remove[0]:
-                continue
-            elif indices_removed < len(indices_to_remove) and current_ind > indices_to_remove[indices_removed]:
-                indices_removed += 1
-            if indices_removed and not removing_tail:
-                self._data[current_ind - indices_removed] = self._data[current_ind]
-            del self._data[current_ind]
-        self._len -= len(indices_to_remove)
+            raise TypeError
 
     def append(self, el):  # Добавляет элемент в конец списка
         if not isinstance(el, (float, int)):
@@ -113,30 +110,17 @@ class Sparse_list:
         for i in L:
             self.append(i)
 
-    def index(self, el, start=0, end=None):  # Возвращает положение первого элемента со значением el
+    def index(self, el, start=None, end=None):  # Возвращает положение первого элемента со значением el
         if not isinstance(el, (int, float)):
             raise TypeError
         elif start >= self._len:
             raise ValueError
-        elif not end:
+        if not end:
             end = self._len - 1
-        elif el == 0:
-            if len(self) == len(self._data):
-                raise ValueError
-            else:
-                for i in range(start, end):
-                    try:
-                        self._data[i]
-                    except KeyError:
-                        return i
-                raise ValueError(f'{el} not in SparseList')
-        else:
-            for k, v in self._data.items():
-                if start <= k < end:
-                    if v == el:
-                        return k
-            else:
-                raise ValueError(f'{el} not in SparseList')
+        for i in range(start, end):
+            if self._data.get(i, 0) == el:
+                return i
+        raise ValueError(f'{el} is not in list')
 
     def count(self, value):  # Возвращает количество элементов со значением value
         if not isinstance(value,(int, float)):
@@ -151,7 +135,7 @@ class Sparse_list:
             return sum(v == value for v in self._data.values())
 
     def copy(self):  # Поверхностная копия списка
-        copy_list = SparseList()
+        copy_list = Sparse_list()
         copy_list._data = self._data.copy()
         copy_list._len = self._len
         return copy_list
@@ -159,13 +143,24 @@ class Sparse_list:
     def insert(self, i, el):   # Вставляет на i-ую позицию значение el
         if not isinstance(i, int):
             raise TypeError
-        elif not isinstance(el, (float, int)):
+        elif not isinstance(el, (int, float)):
             raise TypeError
         elif i >= self._len:
             self.append(el)
         else:
-            ...
-
+            if i < 0:
+                i = self._len + i
+                if i < 0:
+                    i = 0
+            temp_dict = {}
+            for ind, val in self._data.items():
+                if ind >= i:
+                    temp_dict[ind+1] = val
+                else:
+                    temp_dict[ind] = val
+            self._data = temp_dict
+            self._data[i] = el
+            self._len += 1
 
     def reverse(self):  # Разворачивает список
         new_list = {}
@@ -175,13 +170,13 @@ class Sparse_list:
         self._data = new_list
 
     def remove(self, value):   # удаляет первый объект из списка. Если такого элемента нет, то возникает ошибка
-        if value == self._data.values():
-            return
-        for _index, _value in self._data.items():
-            if value == _value:
-                del self._data[_index]
+        if not isinstance(value, (int, float)):
+            raise TypeError
+        for i in range(self._len):
+            if self._data.get(i, 0) == value:
+                self.pop(i)
                 return
-        raise ValueError(f'{value} not in SparseList')
+        raise ValueError(f'{value} not in list')
 
 test = Sparse_list()
 test.append(3.)
@@ -194,6 +189,8 @@ test.append(5.)
 test.append(9.)
 test.append(7.)
 print(test)  # [3.0, 10.0, 0.0, 2.0, 0.0, 0.0, 5.0, 9.0, 7.0]
+# del test[2:7:2] # ne rabotaet ...
+# print(test)  # [3.0, 10.0, 2.0, 0, 9.0, 7.0]
 test.reverse()
 print(test)  # [7.0, 9.0, 5.0, 0.0, 0.0, 2.0, 0.0, 10.0, 3.0]
 test[2] = 14.
@@ -210,11 +207,11 @@ print(test.count(20.)) # 0
 print(test.pop(2))  # 14.0
 print(test)  # [7.0, 9.0, 0.0, 0.0, 0.0, 2.0, 0.0, 10.0, 3.0, 9.0, 14.0, 0.0, 0.0, 14.0, 0.0]
 # print(test.pop(17))  # IndexError: Pop index out of range
-del test[1:8:1]
-print(test)  # [7.0, 0.0, 0.0, 0.0, 2.0, 14.0, 0.0, 14.0]
 test.remove(14.)
-print(test)  # [7.0, 0.0, 0.0, 0.0, 2.0, 0.0, 0.0, 14.0]
-# print(test.remove(20.)) NE VUDAET OSHIBKU
+print(test)  # [7.0, 9.0, 0.0, 0.0, 0.0, 2.0, 0.0, 10.0, 3.0, 9.0, 0.0, 0.0, 0.0, 14.0, 0.0]
+# test.remove(20.)  # ValueError: 20.0 not in list
+test.insert(3, 50.)
+print(test)  # [7.0, 9.0, 0.0, 50.0, 0.0, 0.0, 2.0, 0.0, 10.0, 3.0, 9.0, 0.0, 0.0, 0.0, 14.0, 0.0]
 
 
 
