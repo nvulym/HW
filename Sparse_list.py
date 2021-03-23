@@ -12,6 +12,10 @@ class Sparse_list:
             temp[k] = v
         return str(temp)
 
+    def __iter__(self):
+        for i in range(self._len):
+            yield self._data.get(i, 0)
+
     def __setitem__(self, ind, value):
         if not isinstance(ind, int) and not isinstance(value, (float, int)):
             raise TypeError
