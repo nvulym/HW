@@ -1,4 +1,7 @@
-class Sparse_list:
+from collections.abc import MutableSequence
+
+
+class Sparse_list(MutableSequence):
     def __init__(self):
         self._data = {}  # {ind:num}
         self._len = 0  # max ind
@@ -17,19 +20,43 @@ class Sparse_list:
             yield self._data.get(i, 0)
 
     def __setitem__(self, ind, value):
-        if not isinstance(ind, int) and not isinstance(value, (float, int)):
-            raise TypeError
-        elif ind < 0:
-            ind = self._len + ind
-        elif ind >= self._len:
-            raise IndexError("List index out of range")
-        if value == 0:  # список не должен содержать 0
-            try:
-                del self._data[ind]
-            except KeyError:
-                pass
+        if isinstance(ind, int) and isinstance(value, (float, int)):
+            if ind < 0:
+                ind = self._len + ind
+            elif ind >= self._len:
+                raise IndexError("List index out of range")
+            if value != 0:  # список не должен содержать 0
+                self._data[ind] = value
+            else:
+                try:
+                    del self._data[ind]
+                except KeyError:
+                    pass
+        elif isinstance(ind, slice):
+            start, stop, step = ind.indices(self._len)
+            if step == 1:
+                if isinstance(value, (int, float)):
+                    del self[start:stop]
+                    self.insert(start, value)
+                elif isinstance(value, (list, Sparse_list)):
+                    del self[start:stop]
+                    for i in reversed(value):
+                        self.insert(start, i)
+                else:
+                    raise TypeError
+            else:
+                if isinstance(value, (list, Sparse_list)):
+                    if len(range(start, stop, step)) != len(value):
+                        raise ValueError('Attempt to assign sequence to extended slice with not same size')
+                    else:
+                        iter_value = iter(value)
+                        for i in range(start, stop, step):
+                            del self[i]
+                            self.insert(i, next(iter_value))
+                else:
+                    raise TypeError
         else:
-            self._data[ind] = value
+            raise TypeError
 
     def __getitem__(self, ind):
         if isinstance(ind, int):
