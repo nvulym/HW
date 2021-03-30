@@ -1,7 +1,4 @@
-from collections.abc import MutableSequence
-
-
-class Sparse_list(MutableSequence):
+class Sparse_list():
     def __init__(self):
         self._data = {}  # {ind:num}
         self._len = 0  # max ind
