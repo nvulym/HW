@@ -32,13 +32,18 @@ class Dictlike(Mapping):
         for i in self._content:
             yield i
 
-    def __contains__(self, key):
-        return key in self._content
 
 f = Dictlike('OOP')
 print(f)
 # Files: alg_24.3.py; Molecule.py; OOP_3.1.py; OOP_3.py; OOP_4.py
 # Dirs: .git
-print('alg_24.3.py' in f)  # True
 print(len(f))  # 6
-
+for i in f:
+    print(i)
+    # .git
+    # alg_24.3.py
+    # Molecule.py
+    # OOP_3.1.py
+    # OOP_3.py
+    # OOP_4.py
+print('alg_24.3.py' in f)  # True
