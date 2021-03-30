@@ -217,29 +217,29 @@ test.append(5.)
 test.append(9.)
 test.append(7.)
 print(test)  # [3.0, 10.0, 0.0, 2.0, 0.0, 0.0, 5.0, 9.0, 7.0]
-# # del test[2:7:2]
-# # print(test)  # [3.0, 10.0, 2.0, 0, 9.0, 7.0]
-# test.reverse()
-# print(test)  # [7.0, 9.0, 5.0, 0.0, 0.0, 2.0, 0.0, 10.0, 3.0]
-# test[2] = 14.
-# print(test)  # [7.0, 9.0, 14.0, 0.0, 0.0, 2.0, 0.0, 10.0, 3.0]
-# print(test.index(14., 1, 8)) # 2
-# print(test.index(0, 1, 8))  # 3
-# # print(test.index(20., 1, 8))  # ValueError: 20. not in SparseList
-# new = [9., 14., 0., 0., 14., 0.]
-# test.extend(new)
-# print(test)  # [7.0, 9.0, 14.0, 0.0, 0.0, 2.0, 0.0, 10.0, 3.0, 9.0, 14.0, 0.0, 0.0, 14.0, 0.0]
-# print(test.count(0.))  # 6
-# print(test.count(9.))  # 2
-# print(test.count(20.)) # 0
-# print(test.pop(2))  # 14.0
-# print(test)  # [7.0, 9.0, 0.0, 0.0, 0.0, 2.0, 0.0, 10.0, 3.0, 9.0, 14.0, 0.0, 0.0, 14.0, 0.0]
-# # print(test.pop(17))  # IndexError: Pop index out of range
-# test.remove(14.)
-# print(test)  # [7.0, 9.0, 0.0, 0.0, 0.0, 2.0, 0.0, 10.0, 3.0, 9.0, 0.0, 0.0, 0.0, 14.0, 0.0]
-# # test.remove(20.)  # ValueError: 20.0 not in list
-# test.insert(3, 50.)
-# print(test)  # [7.0, 9.0, 0.0, 50.0, 0.0, 0.0, 2.0, 0.0, 10.0, 3.0, 9.0, 0.0, 0.0, 0.0, 14.0, 0.0]
+del test[2:7:2]
+print(test)  # [3.0, 10.0, 2.0, 0, 9.0, 7.0]
+test.reverse()
+print(test)  # [7.0, 9.0, 5.0, 0.0, 0.0, 2.0, 0.0, 10.0, 3.0]
+test[2] = 14.
+print(test)  # [7.0, 9.0, 14.0, 0.0, 0.0, 2.0, 0.0, 10.0, 3.0]
+print(test.index(14., 1, 8)) # 2
+print(test.index(0, 1, 8))  # 3
+# print(test.index(20., 1, 8))  # ValueError: 20. not in SparseList
+new = [9., 14., 0., 0., 14., 0.]
+test.extend(new)
+print(test)  # [7.0, 9.0, 14.0, 0.0, 0.0, 2.0, 0.0, 10.0, 3.0, 9.0, 14.0, 0.0, 0.0, 14.0, 0.0]
+print(test.count(0.))  # 6
+print(test.count(9.))  # 2
+print(test.count(20.)) # 0
+print(test.pop(2))  # 14.0
+print(test)  # [7.0, 9.0, 0.0, 0.0, 0.0, 2.0, 0.0, 10.0, 3.0, 9.0, 14.0, 0.0, 0.0, 14.0, 0.0]
+# print(test.pop(17))  # IndexError: Pop index out of range
+test.remove(14.)
+print(test)  # [7.0, 9.0, 0.0, 0.0, 0.0, 2.0, 0.0, 10.0, 3.0, 9.0, 0.0, 0.0, 0.0, 14.0, 0.0]
+# test.remove(20.)  # ValueError: 20.0 not in list
+test.insert(3, 50.)
+print(test)  # [7.0, 9.0, 0.0, 50.0, 0.0, 0.0, 2.0, 0.0, 10.0, 3.0, 9.0, 0.0, 0.0, 0.0, 14.0, 0.0]
 
 
 
