@@ -15,25 +15,6 @@ class Sparse_list(MutableSequence):
             temp[k] = v
         return str(temp)
 
-    def __getitem__(self, ind):
-        if isinstance(ind, int):
-            if ind < 0:
-                ind = self._len + ind
-            elif ind > self._len:
-                raise IndexError('List index out of range')
-            return self._data.get(ind, 0)
-        elif isinstance(ind, slice):
-            out_dict = Sparse_list()
-            for i in range(*ind.indices(self._len)):
-                try:
-                    out_dict._data[out_dict._len] = self._data[i]
-                    out_dict._len += 1
-                except KeyError:
-                    out_dict._len += 1
-            return out_dict
-        else:
-            raise TypeError
-
     def __setitem__(self, ind, value):
         if isinstance(ind, int) and isinstance(value, (float, int)):
             if ind < 0:
@@ -72,6 +53,26 @@ class Sparse_list(MutableSequence):
                     raise TypeError
         else:
             raise TypeError
+
+    def __getitem__(self, ind):
+        if isinstance(ind, int):
+            if ind < 0:
+                ind = self._len + ind
+            elif ind > self._len:
+                raise IndexError('List index out of range')
+            return self._data.get(ind, 0)
+        elif isinstance(ind, slice):
+            out_dict = Sparse_list()
+            for i in range(*ind.indices(self._len)):
+                try:
+                    out_dict._data[out_dict._len] = self._data[i]
+                    out_dict._len += 1
+                except KeyError:
+                    out_dict._len += 1
+            return out_dict
+        else:
+            raise TypeError
+
 
     def __delitem__(self, ind):
         if isinstance(ind, int):
