@@ -19,6 +19,8 @@ class Sparse_list(MutableSequence):
         if isinstance(ind, int) and isinstance(value, (float, int)):
             if ind < 0:
                 ind = self._len + ind
+                if ind < 0:
+                    raise IndexError('List index out of range')
             elif ind >= self._len:
                 raise IndexError("List index out of range")
             if value != 0:  # список не должен содержать 0
@@ -58,6 +60,8 @@ class Sparse_list(MutableSequence):
         if isinstance(ind, int):
             if ind < 0:
                 ind = self._len + ind
+                if ind < 0:
+                    raise IndexError('List index out of range')
             elif ind > self._len:
                 raise IndexError('List index out of range')
             return self._data.get(ind, 0)
@@ -78,6 +82,8 @@ class Sparse_list(MutableSequence):
         if isinstance(ind, int):
             if ind < 0:
                 ind = self._len + ind
+                if ind < 0:
+                    raise IndexError('List index out of range')
             elif ind > self._len:
                 raise IndexError('List index out of range')
             try:
