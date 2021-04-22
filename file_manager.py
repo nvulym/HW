@@ -1,14 +1,16 @@
 from collections.abc import Mapping
+from os.path import abspath, join
 import os
 
-class Dictlike(Mapping):
+
+class DictLike(Mapping):
     def __init__(self, path):
         if not os.path.isdir(path):
             raise FileNotFoundError(f'Such {path} is not found')
-        self.path = path
+        self._path = abspath(path)
         self._content = {}  # key - filename in dir or dirname, value - content of file => {name:True/False}
-        for i in os.listdir(self.path):  # listdir делает список всех файлов папки
-            self._content[i] = not os.path.isdir(os.path.join(self.path, i))  # в словаре содержимого создается ключ с
+        for i in os.listdir(self._path):  # listdir делает список всех файлов папки
+            self._content[i] = not os.path.isdir(os.path.join(self._path, i))  # в словаре содержимого создается ключ с
             # названием файла или папки, а значение - файл (True), папка (False)
 
     def __repr__(self):
@@ -19,31 +21,43 @@ class Dictlike(Mapping):
     def __len__(self):
         return len(self._content)
 
-    def __getitem__(self, name_file):
-        path_ = os.path.join(self.path, name_file)
-        if not os.path.exists(path_):
-            raise FileNotFoundError(f'Such {path_} is not found')
-        if self._content[name_file]:
-            return type(path_)
-        # with open(path_) as f:
-        #     return f.read()
+    def __getitem__(self, key):
+        if not isinstance(key, str):
+            raise TypeError
+        if key in self._content:
+            path = join(self._path, key)
+            if os.path.isdir(path):
+                return DictLike(path)
+            elif os.path.isfile(path):
+                with open(path, 'r') as f:
+                    return f.read()
+        else:
+            pass
 
     def __iter__(self):
-        for i in self._content:
-            yield i
+        yield from (i for i in self._content)
+
+    def __contains__(self, key):
+        if not isinstance(key, str):
+            raise TypeError
+        return key in self._content.keys()
 
 
-f = Dictlike('OOP')
+path = 'D:\PythonProject\HW\OOP\\test_dir'
+f = DictLike(path)
+print(f._content)  # {'file_1': True, 'file_2': True, 'test_dir_2': False}
 print(f)
-# Files: alg_24.3.py; Molecule.py; OOP_3.1.py; OOP_3.py; OOP_4.py
-# Dirs: .git
-print(len(f))  # 6
+# Files:
+#  file_1; file_2
+# Dirs:
+# test_dir_2
+print(len(f))  # 3
 for i in f:
     print(i)
-    # .git
-    # alg_24.3.py
-    # Molecule.py
-    # OOP_3.1.py
-    # OOP_3.py
-    # OOP_4.py
-print('alg_24.3.py' in f)  # True
+# file_1
+# file_2
+# test_dir_2
+print('file_1' in f) # True
+file_1 = f['file_1']
+print(file_1)  # file content 1
+
